@@ -1,9 +1,10 @@
-import Layout from '../components/layout';
-import { UserContext } from '../lib/UserContext';
-import { ThemeProvider } from '@magiclabs/ui';
-import '@magiclabs/ui/dist/cjs/index.css';
-import { useState, useEffect } from 'react';
-import Router from 'next/router';
+import Layout from "../components/layout";
+import { UserContext } from "../lib/UserContext";
+import { ThemeProvider } from "@magiclabs/ui";
+import "@magiclabs/ui/dist/cjs/index.css";
+import { useState, useEffect } from "react";
+import Router from "next/router";
+import { checkIsLoggedInMagic } from "../lib/magic";
 
 function MyApp({ Component, pageProps }) {
   const [user, setUser] = useState();
@@ -12,11 +13,13 @@ function MyApp({ Component, pageProps }) {
   // Otherwise, redirect to /login and set UserContext to { user: null }
   useEffect(() => {
     setUser({ loading: true });
-    fetch('/api/user')
-      .then((res) => res.json())
-      .then((data) => {
-        data.user ? setUser(data.user) : Router.push('/login') && setUser({ user: null });
-      });
+    const isLoggedIn = async () => {
+      await checkIsLoggedInMagic(
+        () => setUser({ email: "wnctestuser@yopmail.com", issuer: "..." }),
+        () => Router.push("/login") && setUser({ user: null })
+      );
+    };
+    isLoggedIn();
   }, []);
 
   return (
